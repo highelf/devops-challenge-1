@@ -1,0 +1,54 @@
+# Source: service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-app
+  labels:
+    app.kubernetes.io/name: python-app
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: python-app
+---
+# Source: deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-app
+  labels:
+    app.kubernetes.io/name: python-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: python-app
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: python-app
+    spec:
+      containers:
+        - name: python-app
+          securityContext:
+            {}
+          image: highelf/devops-challenge-1:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {}
